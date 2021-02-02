@@ -14,6 +14,7 @@ func bitCount(x int) int {
 		i, prevBit, curBit, maxLen, curLen int
 		str                                string
 	)
+	// Реализация с помощью цикла - получаем биты - ищем максимальную длину
 	prevBit = -1
 	maxLen = 0
 	curLen = 1
