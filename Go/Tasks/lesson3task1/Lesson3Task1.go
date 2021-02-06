@@ -1,3 +1,4 @@
+//HTTP сервер - возвращает в ответе данные о запросе и тело запроса
 package main
 
 import (
@@ -7,33 +8,26 @@ import (
 	"net/http"
 )
 
-func helloWorld(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-	switch r.Method {
-	case "GET":
-		for k, v := range r.URL.Query() {
-			fmt.Printf("%s: %s\n", k, v)
-		}
-		w.Write([]byte("Received a GET request\n"))
-	case "POST":
+func handlerEcho(w http.ResponseWriter, r *http.Request) {
+	//Выводим параметры запрса при обращении на любой url
+	fmt.Fprintf(w, "%s %s %s\n", r.Method, r.URL, r.Proto)
+	//Для POST запроса выводм тело запроса
+	if r.Method == "POST" {
 		reqBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Fatal(err)
 		}
-
+		//Выводим тело также в консоль
 		fmt.Printf("%s\n", reqBody)
-		w.Write([]byte("Received a POST request\n"))
-	default:
-		w.WriteHeader(http.StatusNotImplemented)
-		w.Write([]byte(http.StatusText(http.StatusNotImplemented)))
+		w.Write([]byte("Received a POST request\nBody:\n"))
+		w.Write([]byte(reqBody))
+		w.Write([]byte("\n"))
 	}
 
 }
 
 func main() {
-	http.HandleFunc("/", helloWorld)
+	//Добавляем обработчик - слушаем на порту 8000
+	http.HandleFunc("/", handlerEcho)
 	http.ListenAndServe(":8000", nil)
 }
